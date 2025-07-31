@@ -1,6 +1,6 @@
 // src/pages/Home.jsx
 import { Link } from 'react-router-dom';
-
+// This is the main landing page for the RBAuth platform
 const Home = () => {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center text-center px-4">

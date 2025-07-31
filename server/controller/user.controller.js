@@ -1,10 +1,10 @@
-import UserModel from "../models/user.model.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+import UserModel from "../models/user.model.js";
 dotenv.config();
 
-
+// Register user controller
 export const registerUser = async (req, res) => {
     let user;
     // Extracting name, email, and password from request body
@@ -76,7 +76,7 @@ export const registerUser = async (req, res) => {
             });
         }
         const hashedPassword = await bcrypt.hash(password, salt);
-
+//hash password with salt
         if (!hashedPassword) {
             return res.status(500).json({
                 message: "Error hashing password",
@@ -102,7 +102,7 @@ export const registerUser = async (req, res) => {
             process.env.JWT_SECRET,
             {}
         );
-
+// create token for user with email and id
         if (!token) {
             return res.status(500).json({
                 message: "Error generating token",
@@ -110,7 +110,7 @@ export const registerUser = async (req, res) => {
                 success: false,
             });
         }
-
+// Store user data and token in localStorage
         res.status(201).json({
             message: "User registered successfully",
             error: false,
@@ -137,7 +137,7 @@ export const loginUser = async (req, res) => {
                 success: false,
             });
         }
-
+// Check if user exists
         const user = await UserModel.findOne({ email: email.toLowerCase(), role: role });
 
         if (!user) {
@@ -147,9 +147,9 @@ export const loginUser = async (req, res) => {
                 success: false,
             });
         }
-
+// Check password
         const isPasswordValid = await bcrypt.compare(password, user.password);
-
+// Compare password with hashed password
         if (!isPasswordValid) {
             return res.status(401).json({
                 message: "Invalid password",
@@ -157,13 +157,13 @@ export const loginUser = async (req, res) => {
                 success: false,
             });
         }
-
+// Generate JWT token
         const token = jwt.sign(
             { email: user.email, id: user._id, role: user.role },
             process.env.JWT_SECRET,
             { expiresIn: "1d" } // Token expires in 1 day
         );
-
+// Generate token for user with email, id and role
         res.status(200).json({
             message: "User logged in successfully",
             error: false,
@@ -228,7 +228,6 @@ export const deleteUser = async (req, res) => {
 
         // Delete the user
         await UserModel.findByIdAndDelete(userId);
-
         res.status(200).json({
             message: "User deleted successfully",
             error: false,
@@ -285,7 +284,7 @@ export const changePassword = async (req, res) => {
                 success: false,
             });
         }
-
+// Check new password format
         if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(newPassword)) {
             return res.status(400).json({
                 message: "New password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",                
@@ -336,7 +335,7 @@ export const adminCreateNewUser = async (req, res) => {
                 success: false,
             });
         }
-
+// Check if user already exists
         const existingUser = await UserModel.findOne({ email });
 
         if (existingUser) {
@@ -346,7 +345,7 @@ export const adminCreateNewUser = async (req, res) => {
                 success: false,
             });
         }
-
+// Check name length
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -369,7 +368,6 @@ export const adminCreateNewUser = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
- 
 
 
 

@@ -1,11 +1,11 @@
+import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";    
 dotenv.config();
 
 // Middleware to authenticate user based on JWT token
 export const authMiddleware = (req, res, next) => {
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
-
+// Extract token from cookies or Authorization header
     if (!token) {
         return res.status(401).json({
             message: "Unauthorized access, token missing",
@@ -13,7 +13,7 @@ export const authMiddleware = (req, res, next) => {
             success: false,
         });
     }
-
+// If token is not present, return unauthorized response
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
             if (err) {
@@ -25,6 +25,7 @@ export const authMiddleware = (req, res, next) => {
             }
             return decoded;
         });
+        // Verify the token using JWT secret
         req.user = decoded;
         console.log("User authenticated:", req.user);
         next();
